@@ -74,7 +74,9 @@ target_include_directories(compiler-base SYSTEM PUBLIC
 
 target_link_libraries(compiler-base PUBLIC
   builtins cargo mux spirv-ll compiler-utils vecz
-  clangCodeGen LLVMCodeGen LLVMCoroutines LLVMCoverage LLVMLTO)
+  LLVMCodeGen LLVMCoroutines LLVMCoverage LLVMLTO
+  $<$<BOOL:${LLVM_LINK_LLVM_DYLIB}>:clang-cpp>
+  $<$<NOT:$<BOOL:${LLVM_LINK_LLVM_DYLIB}>>:clangCodeGen>)
 
 target_compile_definitions(compiler-base PRIVATE
   # Abacus builtins are only included as part of the .cpp files, so these

@@ -136,7 +136,7 @@ add_compile_options(
 
 set(CA_COMPILE_OPTIONS
   $<$<OR:$<BOOL:${UNIX}>,$<BOOL:${ANDROID}>,$<BOOL:${MINGW}>>:
-    $<$<STREQUAL:${CMAKE_SOURCE_DIR},${PROJECT_SOURCE_DIR}>:
+    $<$<BOOL:${CA_ENABLE_WERROR}>:
       -Werror             # Enable warnings as errors when not a subproject
     >
     -Wno-error=deprecated-declarations  # Disable: use of deprecated functions

@@ -39,32 +39,32 @@ Once the modules are included we verify the LLVM version is supported and set
 some additional compile definitions.
 #]=======================================================================]
 
-if(CA_RUNTIME_COMPILER_ENABLED AND NOT CA_LLVM_INSTALL_DIR)
-  message(FATAL_ERROR
-    "CA_LLVM_INSTALL_DIR must be given when CA_RUNTIME_COMPILER_ENABLED is set")
+# Find LLVM Package.
+message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+find_package(LLVM COMPONENTS Clang HINTS ${CA_LLVM_INSTALL_DIR})
+if(NOT LLVM_FOUND)
+  if(CA_RUNTIME_COMPILER_ENABLED AND NOT CA_LLVM_INSTALL_DIR)
+    message(FATAL_ERROR
+      "CA_LLVM_INSTALL_DIR must be given when CA_RUNTIME_COMPILER_ENABLED is set")
+  endif()
+  # Add our cmake modules directory to the cmake include path including
+  # LLVM/Clang.
+  string(REPLACE "\\" "/" CA_LLVM_INSTALL_DIR "${CA_LLVM_INSTALL_DIR}")
+  if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm/LLVMConfig.cmake")
+    message(FATAL_ERROR
+      "'${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm/LLVMConfig.cmake' does not exist"
+      " (search path set with CA_LLVM_INSTALL_DIR)")
+  endif()
+  if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/clang/ClangTargets.cmake")
+    message(FATAL_ERROR
+      "'${CA_LLVM_INSTALL_DIR}/lib/cmake/clang/ClangTargets.cmake' does not exist"
+      " (search path set with CA_LLVM_INSTALL_DIR)")
+  endif()
+  list(APPEND CMAKE_MODULE_PATH
+    ${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm
+    ${CA_LLVM_INSTALL_DIR}/lib/cmake/clang)
 endif()
 
-# Add our cmake modules directory to the cmake include path including
-# LLVM/Clang.
-string(REPLACE "\\" "/" CA_LLVM_INSTALL_DIR "${CA_LLVM_INSTALL_DIR}")
-if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm/LLVMConfig.cmake")
-  message(FATAL_ERROR
-    "'${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm/LLVMConfig.cmake' does not exist"
-    " (search path set with CA_LLVM_INSTALL_DIR)")
-endif()
-if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/clang/ClangTargets.cmake")
-  message(FATAL_ERROR
-    "'${CA_LLVM_INSTALL_DIR}/lib/cmake/clang/ClangTargets.cmake' does not exist"
-    " (search path set with CA_LLVM_INSTALL_DIR)")
-endif()
-list(APPEND CMAKE_MODULE_PATH
-  ${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm
-  ${CA_LLVM_INSTALL_DIR}/lib/cmake/clang)
-
-# Include LLVM.
-include(LLVMConfig)
-# Include Clang.
-include(ClangTargets)
 # Detect which CRT LLVM was built with.
 include(DetectLLVMMSVCCRT)
 
